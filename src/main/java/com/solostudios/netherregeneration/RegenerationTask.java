@@ -45,9 +45,6 @@ public class RegenerationTask implements Runnable {
         /*
         This code was taken from here:
         https://www.spigotmc.org/threads/world-regeneratechunk-x-z.414053/
-        
-        If this ever stops working an alternative is using this method:
-        https://github.com/StargateMC/Regenerator/blob/master/com/draksterau/Regenerator/Handlers/RUtils.java#L119
          */
         
         if (plugin.isChunkOld(chunk.getX(), chunk.getZ())) {
