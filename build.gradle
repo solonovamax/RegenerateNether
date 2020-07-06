@@ -1,16 +1,31 @@
 /*
  * Copyright 2020 solonovamax@12oclockpoint.com
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * Copyright 2020 solonovamax@12oclockpoint.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
+ * publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
  */
+
 
 plugins {
     id 'java'
     id 'net.minecrell.plugin-yml.bukkit' version '0.3.0'
+}
+
+jar {
+    from "resources/config.yml"
 }
 
 bukkit {
@@ -25,51 +40,92 @@ bukkit {
     main = 'com.solostudios.netherregeneration.NetherRegeneration'
 
     // API version (should be set for 1.13+)
-    apiVersion = '1.16'
+    apiVersion = '1.15'
 
     // Other possible properties from plugin.yml (optional)
     load = 'STARTUP' // or 'POSTWORLD'
     authors = ['solonovamax']
-    //depend = ['WorldEdit']
+    depend = ['WorldEdit']
     //loadBefore = ['BrokenPlugin']
     prefix = 'NetherRegenerator'
     defaultPermission = 'OP' // 'TRUE', 'FALSE', 'OP' or 'NOT_OP'
 
     commands {
-        test {
-            description = 'This is a test command!'
-            aliases = ['t']
-            permission = 'testplugin.test'
-            usage = 'Just run the command!'
-            // permissionMessage = 'You may not test this command!'
+        addsavedchunk {
+            description = 'This command allows you to add a chunk to the list of chunks that should be saved.'
+            permission = 'netherregen.chunks.save'
+            usage = '/<command> <x> <y> <z>'
+            permissionMessage = 'You require the netherregen.chunks.save permission to use this command!'
         }
-        // ...
+        isoldchunk {
+            description = 'Allows you to check if this is an old a new chunk.'
+            permission = 'netherregen.chunks.checkold'
+            usage = '/<command>'
+            permissionMessage = 'You require the netherregen.chunks.save permission to use this command!'
+        }
+        taskqueuelength {
+            description = 'Allows you to check the length of the task queue.'
+            permission = 'netherregen.taskqueue.length'
+            usage = '/<command>'
+            permissionMessage = 'You require the netherregen.chunks.save permission to use this command!'
+        }
+        taskqueueclear {
+            description = 'Allows you to clear the task queue.'
+            permission = 'netherregen.taskqueue.clear'
+            usage = '/<command>'
+            permissionMessage = 'You require the netherregen.chunks.save permission to use this command!'
+        }
+
     }
 
     permissions {
-        'testplugin.*' {
-            children = ['testplugin.test']
+        'netherregen.*' {
+            children = ['netherregen.chunks.*', 'netherregen.taskqueue.check']
+            setDefault('OP')
         }
-        'testplugin.test' {
-            description = 'Allows you to run the test command'
-            setDefault('OP') // 'TRUE', 'FALSE', 'OP' or 'NOT_OP'
+        'netherregen.chunks.*' {
+            children = ['netherregen.chunks.save', 'netherregen.chunks.checkold']
+            setDefault('OP')
+        }
+        'netherregen.chunks.save' {
+            description = 'Allows a user to preserve a chunk.'
+            setDefault('OP')
+        }
+        'netherregen.chunks.checkold' {
+            description = 'Allows a user to check if a chunk is old.'
+            setDefault('OP')
+        }
+        'netherregen.chunks.*' {
+            children = ['netherregen.taskqueue.length', 'netherregen.chunks.checkold']
+            setDefault('OP')
+        }
+        'netherregen.taskqueue.length' {
+            description = 'Allows you to check the task queue length.'
+            setDefault('OP')
+        }
+        'netherregen.taskqueue.clear' {
+            description = 'Allows you to check the task queue.'
+            setDefault('OP')
         }
     }
 }
 
 group 'com.solostudios'
 version '0.1-SNAPSHOT'
+libsDirName = '/home/solonovamax/Spigot/1.16.1/NetherRegenerator/plugins'
 
 repositories {
     mavenCentral()
     maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
     maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
     maven { url = 'https://papermc.io/repo/repository/maven-public/' }
+    maven { url = 'http://maven.sk89q.com/repo/' }
 }
 
 dependencies {
     //testCompile group: 'junit', name: 'junit', version: '4.12'
 
     compileOnly 'org.spigotmc:spigot-api:1.16.1-R0.1-SNAPSHOT'
+    compileOnly 'com.sk89q.worldedit:worldedit-bukkit:7.2.0-SNAPSHOT'
     //compileOnly 'com.destroystokyo.paper:paper-api:1.16.1-R0.1-SNAPSHOT'
 }

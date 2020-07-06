@@ -18,36 +18,30 @@
  *
  */
 
-package com.solostudios.netherregeneration;
+package com.solostudios.netherregeneration.commands;
 
-import org.bukkit.Chunk;
-import org.bukkit.World;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.world.ChunkLoadEvent;
+import com.solostudios.netherregeneration.NetherRegeneration;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 
-public class EventListener implements Listener {
+public class TestChunkOldCommand implements CommandExecutor {
     private final NetherRegeneration plugin;
     
-    public EventListener(NetherRegeneration plugin) {
+    public TestChunkOldCommand(NetherRegeneration plugin) {
         this.plugin = plugin;
     }
     
-    @EventHandler
-    public void onChunkLoad(ChunkLoadEvent chunkLoadEvent) {
-        Chunk chunk = chunkLoadEvent.getChunk();
-        if (chunk.getWorld().getEnvironment() == World.Environment.NORMAL)
-            return;
-        if (chunkLoadEvent.isNewChunk())
-            return;
-        if (!chunkLoadEvent.isNewChunk()) {
-            if (plugin.isChunkOld(chunk.getX(), chunk.getZ())) {
-                //plugin.setRegeneratedChunk(chunk.getX(), chunk.getZ());
-                //Bukkit.getScheduler().runTaskAsynchronously(plugin, new RegenerationTask(plugin, chunk));
-                new RegenerationTask(plugin, chunk).run();
-            }
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (sender instanceof Player) {
+            Player player = (Player) sender;
+            sender.sendMessage(plugin.isChunkOld(player.getLocation().getBlockX() << 4, player.getLocation().getBlockZ() << 4) ?
+                               "You are in a regenerated chunk." :
+                               "You are in an old chunk.");
         }
+        return true;
     }
-    
 }
