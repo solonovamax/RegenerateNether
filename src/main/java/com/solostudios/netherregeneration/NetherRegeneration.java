@@ -20,6 +20,7 @@
 
 package com.solostudios.netherregeneration;
 
+import com.solostudios.netherregeneration.commands.ForceRegenCommand;
 import com.solostudios.netherregeneration.commands.TestChunkOldCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.JSONArray;
@@ -91,12 +92,19 @@ public class NetherRegeneration extends JavaPlugin {
     public void onEnable() {
         this.saveDefaultConfig();
         logger = this.getLogger();
-        
+    
         getServer().getPluginManager().registerEvents(new EventListener(this), this);
-        
-        getCommand("isoldchunk").setExecutor(new TestChunkOldCommand(this));
-        
-        
+    
+        TestChunkOldCommand testChunkOldCommand = new TestChunkOldCommand(this);
+        ForceRegenCommand   forceRegenCommand   = new ForceRegenCommand(this);
+    
+        getCommand("isoldchunk").setExecutor(testChunkOldCommand);
+        getCommand("forcechunkregen").setExecutor(forceRegenCommand);
+    
+        getCommand("isoldchunk").setTabCompleter(testChunkOldCommand);
+        getCommand("forcechunkregen").setTabCompleter(forceRegenCommand);
+    
+    
         File chunkListFile = new File("plugins/RegenerateNether/chunkList.json");
         if (chunkListFile.exists()) {
             try {

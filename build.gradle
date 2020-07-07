@@ -64,6 +64,12 @@ bukkit {
             usage = '/<command>'
             permissionMessage = 'You require the netherregen.chunks.save permission to use this command!'
         }
+        forcechunkregen {
+            description = 'Forces a chunk regeneration.'
+            permission = 'netherregen.chunks.forceregen'
+            usage = '/<command> or /<command> <world name> <x> <z> or /<comman> <world name> <x> <y> <z>'
+            permissionMessage = 'You require the netherregen.chunks.forceregen permission to use this command!'
+        }
         taskqueuelength {
             description = 'Allows you to check the length of the task queue.'
             permission = 'netherregen.taskqueue.length'
@@ -81,11 +87,11 @@ bukkit {
 
     permissions {
         'netherregen.*' {
-            children = ['netherregen.chunks.*', 'netherregen.taskqueue.check']
+            children = ['netherregen.chunks.*', 'netherregen.taskqueue.*']
             setDefault('OP')
         }
         'netherregen.chunks.*' {
-            children = ['netherregen.chunks.save', 'netherregen.chunks.checkold']
+            children = ['netherregen.chunks.save', 'netherregen.chunks.checkold', 'netherregen.chunks.forceregen']
             setDefault('OP')
         }
         'netherregen.chunks.save' {
@@ -96,7 +102,11 @@ bukkit {
             description = 'Allows a user to check if a chunk is old.'
             setDefault('OP')
         }
-        'netherregen.chunks.*' {
+        'netherregen.chunks.forceregen' {
+            description = 'Allows a user to force a chunk regen.'
+            setDefault('OP')
+        }
+        'netherregen.taskqueue.*' {
             children = ['netherregen.taskqueue.length', 'netherregen.chunks.checkold']
             setDefault('OP')
         }

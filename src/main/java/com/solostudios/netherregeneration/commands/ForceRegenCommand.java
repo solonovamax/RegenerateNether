@@ -21,6 +21,7 @@
 package com.solostudios.netherregeneration.commands;
 
 import com.solostudios.netherregeneration.NetherRegeneration;
+import com.solostudios.netherregeneration.RegenerationTask;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.CommandBlock;
@@ -29,7 +30,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,30 +37,21 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 
-public class TestChunkOldCommand implements CommandExecutor, TabCompleter {
+public class ForceRegenCommand implements CommandExecutor, TabCompleter {
     private final NetherRegeneration plugin;
     
-    public TestChunkOldCommand(NetherRegeneration plugin) {
+    public ForceRegenCommand(NetherRegeneration plugin) {
         this.plugin = plugin;
     }
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            sender.sendMessage(plugin.isChunkOld(player.getLocation().getBlockX() << 4, player.getLocation().getBlockZ() << 4) ?
-                               "You are in a regenerated chunk." :
-                               "You are in an old chunk.");
-        }
-        
-        
         if (args.length == 4) {
             try {
                 Objects.requireNonNull(Bukkit.getWorld(args[0])).getChunkAt(Integer.getInteger(args[1]) << 4,
                                                                             Integer.getInteger(args[3]) << 4);
-                sender.sendMessage(plugin.isChunkOld(Integer.getInteger(args[1]) << 4, Integer.getInteger(args[2]) << 4) ?
-                                   "That chunk is a new chunk." :
-                                   "That chunk is an old chunk.");
+                sender.sendMessage("Forcing the regeneration of the chunk at x:" + (Integer.getInteger(args[1]) << 4) + " z:" +
+                                   (Integer.getInteger(args[3]) << 4) + ".");
             } catch (NullPointerException e) {
                 sender.sendMessage("Could not find world.");
             } catch (NumberFormatException e) {
@@ -70,9 +61,8 @@ public class TestChunkOldCommand implements CommandExecutor, TabCompleter {
             try {
                 Objects.requireNonNull(Bukkit.getWorld(args[0])).getChunkAt(Integer.getInteger(args[1]) << 4,
                                                                             Integer.getInteger(args[2]) << 4);
-                sender.sendMessage(plugin.isChunkOld(Integer.getInteger(args[1]) << 4, Integer.getInteger(args[2]) << 4) ?
-                                   "That chunk is a new chunk." :
-                                   "That chunk is an old chunk.");
+                sender.sendMessage("Forcing the regeneration of the chunk at x:" + (Integer.getInteger(args[1]) << 4) + " z:" +
+                                   (Integer.getInteger(args[2]) << 4) + ".");
             } catch (NullPointerException e) {
                 sender.sendMessage("Could not find world.");
             } catch (NumberFormatException e) {
@@ -81,15 +71,11 @@ public class TestChunkOldCommand implements CommandExecutor, TabCompleter {
         } else if (args.length == 0) {
             if (sender instanceof Entity) {
                 Entity entity = (Entity) sender;
-                sender.sendMessage(plugin.isChunkOld(entity.getLocation().getBlockX() << 4, entity.getLocation().getBlockZ() << 4) ?
-                                   "You are in a regenerated chunk." :
-                                   "You are in an old chunk.");
+                new RegenerationTask(plugin, entity.getLocation().getChunk()).run();
+                sender.sendMessage("Forced a chunk regeneration at your current location.");
             } else if (sender instanceof CommandBlock) {
-                CommandBlock commandBlock = (CommandBlock) sender;
-                sender.sendMessage(
-                        plugin.isChunkOld(commandBlock.getLocation().getBlockX() << 4, commandBlock.getLocation().getBlockZ() << 4) ?
-                        "You are in a regenerated chunk." :
-                        "You are in an old chunk.");
+                new RegenerationTask(plugin, ((CommandBlock) sender).getLocation().getChunk()).run();
+                sender.sendMessage("Forced a chunk regeneration at your current location.");
             }
         } else {
             return false;
@@ -100,7 +86,7 @@ public class TestChunkOldCommand implements CommandExecutor, TabCompleter {
     
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (command.getName().equalsIgnoreCase("isoldchunk")) {
+        if (command.getName().equalsIgnoreCase("forcechunkregen")) {
             switch (args.length) {
                 case 0:
                     return Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList());
@@ -120,5 +106,6 @@ public class TestChunkOldCommand implements CommandExecutor, TabCompleter {
             }
         }
         return null;
+        
     }
 }

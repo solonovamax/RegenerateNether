@@ -43,28 +43,26 @@ public class RegenerationTask implements Runnable {
         This code was taken from here:
         https://www.spigotmc.org/threads/world-regeneratechunk-x-z.414053/
          */
+    
+        System.out.println(
+                "The world is: " + chunk.getWorld().getName() + " chunk coordinates: x:" + chunk.getX() + " z:" + chunk.getZ());
+        plugin.setRegeneratedChunk(chunk.getX(), chunk.getZ());
+        int bx = chunk.getX() << 4; //shift 4 bits to get translate coordinates from chunk coordinates to block coordinates
+        int bz = chunk.getZ() << 4;
+        try {
+            BukkitWorld world = new BukkitWorld(chunk.getWorld());
+            CuboidRegion regenerationRegion = new CuboidRegion(world, BlockVector3.at(bx, 0, bz), BlockVector3.at(bx + 15, 122,
+                                                                                                                  bz + 15));
+            EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, -1);
+            boolean     result  = world.regenerate(regenerationRegion, session);
+            session.flushSession();
         
-        if (plugin.isChunkOld(chunk.getX(), chunk.getZ())) {
-            System.out.println(
-                    "The world is: " + chunk.getWorld().getName() + " chunk coordinates: x:" + chunk.getX() + " z:" + chunk.getZ());
-            plugin.setRegeneratedChunk(chunk.getX(), chunk.getZ());
-            int bx = chunk.getX() << 4; //shift 4 bits to get translate coordinates from chunk coordinates to block coordinates
-            int bz = chunk.getZ() << 4;
-            try {
-                BukkitWorld world = new BukkitWorld(chunk.getWorld());
-                CuboidRegion regenerationRegion = new CuboidRegion(world, BlockVector3.at(bx, 0, bz), BlockVector3.at(bx + 15, 122,
-                                                                                                                      bz + 15));
-                EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, -1);
-                boolean     result  = world.regenerate(regenerationRegion, session);
-                session.flushSession();
+            //log here for testing
+            //Bukkit.getLogger().info("Regenerating chunk at coords x:" + bx + " z:" + bz);
         
-                //log here for testing
-                //Bukkit.getLogger().info("Regenerating chunk at coords x:" + bx + " z:" + bz);
-                
-            } catch (Exception e) {
-                //Bukkit.getLogger().log(Level.WARNING, "error", e);
+        } catch (Exception e) {
+            //Bukkit.getLogger().log(Level.WARNING, "error", e);
         
-            }
         }
     }
 }
