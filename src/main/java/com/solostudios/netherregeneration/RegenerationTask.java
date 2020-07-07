@@ -25,10 +25,7 @@ import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
-
-import java.util.logging.Level;
 
 
 public class RegenerationTask implements Runnable {
@@ -48,22 +45,25 @@ public class RegenerationTask implements Runnable {
          */
         
         if (plugin.isChunkOld(chunk.getX(), chunk.getZ())) {
+            System.out.println(
+                    "The world is: " + chunk.getWorld().getName() + " chunk coordinates: x:" + chunk.getX() + " z:" + chunk.getZ());
             plugin.setRegeneratedChunk(chunk.getX(), chunk.getZ());
             int bx = chunk.getX() << 4; //shift 4 bits to get translate coordinates from chunk coordinates to block coordinates
             int bz = chunk.getZ() << 4;
             try {
                 BukkitWorld world = new BukkitWorld(chunk.getWorld());
-                CuboidRegion regenerationRegion = new CuboidRegion(world, BlockVector3.at(bx, 0, bz), BlockVector3.at(bx + 15, 127,
+                CuboidRegion regenerationRegion = new CuboidRegion(world, BlockVector3.at(bx, 0, bz), BlockVector3.at(bx + 15, 122,
                                                                                                                       bz + 15));
-                EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, 16 * 16 * 128);
+                EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, -1);
                 boolean     result  = world.regenerate(regenerationRegion, session);
                 session.flushSession();
-                
+        
                 //log here for testing
-                Bukkit.getLogger().info("Regenerating chunk at coords x:" + bx + " z:" + bz);
+                //Bukkit.getLogger().info("Regenerating chunk at coords x:" + bx + " z:" + bz);
                 
             } catch (Exception e) {
-                Bukkit.getLogger().log(Level.WARNING, "error", e);
+                //Bukkit.getLogger().log(Level.WARNING, "error", e);
+        
             }
         }
     }

@@ -21,19 +21,23 @@
 package com.solostudios.netherregeneration;
 
 import com.solostudios.netherregeneration.commands.TestChunkOldCommand;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
 public class NetherRegeneration extends JavaPlugin {
-    private Logger            logger;
-    private FileConfiguration config;
+    private Logger     logger;
+    private JSONObject chunkList;
     
     /**
      * Checks if a chunk is in the list of regenerated chunks.
@@ -45,10 +49,12 @@ public class NetherRegeneration extends JavaPlugin {
      */
     public boolean isChunkOld(int x, int z) {
         try {
-            return !Objects.requireNonNull(config.getList("oldChunks", new ArrayList<String>())).contains(x + ":" + z);
-        } catch (NullPointerException e) {
-            logger.log(Level.WARNING, "Getting the config \"oldChunks\" produced null pointer exception.", e);
-            throw new RuntimeException(e);
+            return !chunkList.getJSONArray("oldChunks").toList().contains(x + ":" + z);
+        } catch (JSONException | NullPointerException e) {
+            //logger.log(Level.WARNING, "Getting the config \"oldChunks\" produced null pointer exception.", e);
+            //throw new RuntimeException(e);
+            chunkList.put("oldChunks", new JSONArray());
+            return true;
         }
     }
     
@@ -61,30 +67,54 @@ public class NetherRegeneration extends JavaPlugin {
      *         The chunk's z coordinate. This is a block coordinate >> 4.
      */
     public void setRegeneratedChunk(int x, int z) {
+        JSONArray coordinates;
         try {
-            List<String> coordinates = config.getStringList("oldChunks");
-            coordinates.add(x + ":" + z);
-            
-            config.set("oldChunks", coordinates);
-            saveConfig();
-            
-        } catch (NullPointerException e) {
-            logger.log(Level.WARNING, "Getting the config \"oldChunks\" produced null pointer exception.", e);
+            coordinates = chunkList.getJSONArray("oldChunks");
+        } catch (JSONException e) {
+            //logger.log(Level.WARNING, "Getting the config \"oldChunks\" produced null pointer exception.", e);
+            coordinates = new JSONArray();
+        }
+        coordinates.put(x + ":" + z);
+    
+        chunkList.put("oldChunks", coordinates);
+    }
+    
+    public void saveJSON() {
+        try (FileWriter chunkListFile = new FileWriter("plugins/RegenerateNether/chunkList.json")) {
+            chunkListFile.write(chunkList.toString());
+        } catch (IOException e) {
+            logger.log(Level.WARNING, "Could not save config file for list of chunks!", e);
         }
     }
     
     @Override
     public void onEnable() {
         this.saveDefaultConfig();
-        config = this.getConfig();
-        
-        
         logger = this.getLogger();
         
         getServer().getPluginManager().registerEvents(new EventListener(this), this);
         
-        
         getCommand("isoldchunk").setExecutor(new TestChunkOldCommand(this));
+        
+        
+        File chunkListFile = new File("plugins/RegenerateNether/chunkList.json");
+        if (chunkListFile.exists()) {
+            try {
+                chunkList = new JSONObject(new String(Files.readAllBytes(chunkListFile.toPath())));
+            } catch (FileNotFoundException e) {
+                logger.log(Level.WARNING, "Could not find the chunk list file, even though the file exists...", e);
+            } catch (IOException e) {
+                logger.log(Level.WARNING, "Exception occurred while attempting to read file.", e);
+            }
+        } else {
+            try {
+                //chunkList.mkdir();
+                chunkListFile.createNewFile();
+            } catch (IOException e) {
+                logger.log(Level.WARNING, "Could not create config file for list of chunks!", e);
+            }
+            chunkList = new JSONObject();
+        }
         
     }
 }

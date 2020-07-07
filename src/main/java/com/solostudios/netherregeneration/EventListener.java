@@ -32,20 +32,28 @@ public class EventListener implements Listener {
     
     public EventListener(NetherRegeneration plugin) {
         this.plugin = plugin;
+        Runtime.getRuntime().addShutdownHook(new Thread(this::onJVMShutdown));
+    }
+    
+    public void onJVMShutdown() {
+        plugin.saveJSON();
     }
     
     @EventHandler
     public void onChunkLoad(ChunkLoadEvent chunkLoadEvent) {
         Chunk chunk = chunkLoadEvent.getChunk();
-        if (chunk.getWorld().getEnvironment() == World.Environment.NORMAL)
-            return;
-        if (chunkLoadEvent.isNewChunk())
-            return;
+        
         if (!chunkLoadEvent.isNewChunk()) {
-            if (plugin.isChunkOld(chunk.getX(), chunk.getZ())) {
-                //plugin.setRegeneratedChunk(chunk.getX(), chunk.getZ());
-                //Bukkit.getScheduler().runTaskAsynchronously(plugin, new RegenerationTask(plugin, chunk));
-                new RegenerationTask(plugin, chunk).run();
+            if (chunk.getWorld().getEnvironment() == World.Environment.NETHER) {
+                //if (chunk.getWorld().getName().equalsIgnoreCase("worldeditregentempworld")) {
+                //    plugin.getLogger().info("worldedit world");
+                //    return;
+                //}
+                if (plugin.isChunkOld(chunk.getX(), chunk.getZ())) {
+                    //plugin.setRegeneratedChunk(chunk.getX(), chunk.getZ());
+                    //Bukkit.getScheduler().runTaskAsynchronously(plugin, new RegenerationTask(plugin, chunk));
+                    new RegenerationTask(plugin, chunk).run(); //I was told running async causes problems and it turns out it does
+                }
             }
         }
     }
