@@ -42,8 +42,10 @@ public class EventListener implements Listener {
     @EventHandler
     public void onChunkLoad(ChunkLoadEvent chunkLoadEvent) {
         Chunk chunk = chunkLoadEvent.getChunk();
-        
-        if (!chunkLoadEvent.isNewChunk()) {
+    
+        if (chunkLoadEvent.isNewChunk()) {
+            plugin.setRegeneratedChunk(chunk.getX(), chunk.getZ());
+        } else {
             if (chunk.getWorld().getEnvironment() == World.Environment.NETHER) {
                 //if (chunk.getWorld().getName().equalsIgnoreCase("worldeditregentempworld")) {
                 //    plugin.getLogger().info("worldedit world");
