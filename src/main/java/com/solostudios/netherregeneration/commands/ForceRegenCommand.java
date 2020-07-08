@@ -36,12 +36,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Entity;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -54,30 +51,27 @@ public class ForceRegenCommand implements CommandExecutor, TabCompleter {
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    
+        if (!(sender instanceof Entity)) {
+            sender.sendMessage(
+                    "I'm way too lazy to try and figure out why things are breaking, so for now only entities can run the command.");
+            return false;
+        }
+        Entity entity = (Entity) sender;
         if (args.length == 4) {
             try {
-                regenerate(sender, Objects.requireNonNull(Bukkit.getWorld(args[0])).getChunkAt(Integer.getInteger(args[1]) << 4,
-                                                                                               Integer.getInteger(args[3]) << 4));
-            } catch (NullPointerException e) {
-                sender.sendMessage("Could not find world.");
+                regenerate(sender, entity.getWorld().getChunkAt(Integer.getInteger(args[1]) << 4, Integer.getInteger(args[3]) << 4));
             } catch (NumberFormatException e) {
                 sender.sendMessage("Invalid number.");
             }
         } else if (args.length == 3) {
             try {
-                regenerate(sender, Objects.requireNonNull(Bukkit.getWorld(args[0])).getChunkAt(Integer.getInteger(args[1]) << 4,
-                                                                                               Integer.getInteger(args[2]) << 4));
-            } catch (NullPointerException e) {
-                sender.sendMessage("Could not find world.");
+                regenerate(sender, entity.getWorld().getChunkAt(Integer.getInteger(args[1]) << 4, Integer.getInteger(args[2]) << 4));
             } catch (NumberFormatException e) {
                 sender.sendMessage("Invalid number.");
             }
         } else if (args.length == 0) {
-            if (sender instanceof Entity) {
-                regenerate(sender, ((Entity) sender).getLocation().getChunk());
-            } else if (sender instanceof CommandBlock) {
-                regenerate(sender, ((CommandBlock) sender).getChunk());
-            }
+            regenerate(sender, ((Entity) sender).getLocation().getChunk());
         } else {
             return false;
         }
@@ -89,50 +83,13 @@ public class ForceRegenCommand implements CommandExecutor, TabCompleter {
         new RegenerationTask(plugin, chunk).run();
         sender.sendMessage("Forcing the regeneration of the chunk at x:" + (chunk.getX() << 4) + " z:" +
                            (chunk.getZ() << 4) + ".");
-        
         plugin.getServer().getOnlinePlayers().forEach((player -> {
-            StringBuilder regenQuery = new StringBuilder();
-            regenQuery.append("{\"text\":\"An watershow has started!\",")
-                      .append("\"color\":\"gold\",")
-                      .append("\"extra\":[{\"text\":\"[Click to Teleport]\",")
-                      .append("\"color\":\"gray\",")
-                      .append("\"bold\":\"true\",")
-                      .append("\"italic\":\"true\",\"underlined\":\"false\",")
-                      .append("\"strikethrough\":\"false\",")
-                      .append("\"obfuscated\":\"false\",")
-                      .append("\"hoverEvent\":{\"action\":\"show_text\",")
-                      .append("\"value\":\"hey this is an test\"},")
-                      .append("\"clickEvent\":{\"action\":\"run_command\",")
-                      .append("\"value\":\"/outlinechunk ")
-                      .append(chunk.getWorld().getName())
-                      .append(" ")
-                      .append(chunk.getX())
-                      .append(" ")
-                      .append(chunk.getZ())
-                      .append("\\\"}}]}\"");
-            
-            JSONObject chunkOutlineMessage = new JSONObject();
-            chunkOutlineMessage.put("text", "Would you like to outline the chunk?");
-            chunkOutlineMessage.put("extra", new JSONArray().put(new JSONObject().put("text", "[Click to Outline]")
-                                                                                 .put("color", "green")
-                                                                                 .put("hoverEvent",
-                                                                                      new JSONObject().put("action", "show_text")
-                                                                                                      .put("value", "Click me!"))
-                                                                                 .put("clickEvent",
-                                                                                      new JSONObject().put("action", "run_command")
-                                                                                                      .put("value", "/outlinechunk " + chunk
-                                                                                                              .getWorld()
-                                                                                                              .getName() + " " +
-                                                                                                                    (chunk.getX() >> 4) +
-                                                                                                                    " " +
-                                                                                                                    (chunk.getZ() >> 4)))));
-            
             TextComponent outlineComponent = new TextComponent("[Click to Outline]");
             outlineComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
                                                           "/outlinechunk " + chunk.getWorld().getName() + " " + (chunk.getX() << 4) + " " +
                                                           (chunk.getZ() << 4)));
             outlineComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click me to run!").create()));
-            
+        
             player.spigot().sendMessage(new ComponentBuilder("Would you like to outline the chunk?").color(ChatColor.WHITE)
                                                                                                     .append(" ")
                                                                                                     .color(ChatColor.GREEN)

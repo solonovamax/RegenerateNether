@@ -45,36 +45,30 @@ public class TestChunkOldCommand implements CommandExecutor, TabCompleter {
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    
+        if (!(sender instanceof Entity)) {
+            sender.sendMessage(
+                    "I'm way too lazy to try and figure out why things are breaking, so for now only entities can run the command.");
+            return false;
+        }
+        Entity entity = (Entity) sender;
         if (args.length == 4) {
             try {
-                //Objects.requireNonNull(Bukkit.getWorld(args[0])).getChunkAt(Integer.getInteger(args[1]) << 4,
-                //                                                            Integer.getInteger(args[3]) << 4);
                 isChunkOld(sender, Integer.getInteger(args[1]), Integer.getInteger(args[3]));
-            } catch (NullPointerException e) {
-                sender.sendMessage("Could not find world.");
             } catch (NumberFormatException e) {
                 sender.sendMessage("Invalid number.");
             }
         } else if (args.length == 3) {
             try {
-                //Objects.requireNonNull(Bukkit.getWorld(args[0])).getChunkAt(Integer.getInteger(args[1]) << 4,
-                //                                                            Integer.getInteger(args[2]) << 4);
                 isChunkOld(sender, Integer.getInteger(args[1]), Integer.getInteger(args[2]));
-            } catch (NullPointerException e) {
-                sender.sendMessage("Could not find world.");
             } catch (NumberFormatException e) {
                 sender.sendMessage("Invalid number.");
             }
         } else if (args.length == 0) {
-            if (sender instanceof Entity) {
-                isChunkOld(sender, ((Entity) sender).getLocation());
-            } else if (sender instanceof CommandBlock) {
-                isChunkOld(sender, ((CommandBlock) sender).getLocation());
-            }
+            isChunkOld(sender, ((Entity) sender).getLocation());
         } else {
             return false;
         }
-    
         return true;
     }
     

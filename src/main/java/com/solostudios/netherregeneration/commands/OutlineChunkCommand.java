@@ -34,7 +34,6 @@ import org.bukkit.entity.Entity;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -47,38 +46,26 @@ public class OutlineChunkCommand implements CommandExecutor, TabCompleter {
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!(sender instanceof Entity)) {
+            sender.sendMessage(
+                    "I'm way too lazy to try and figure out why things are breaking, so for now only entities can run the command.");
+            return false;
+        }
+        Entity entity = (Entity) sender;
         if (args.length == 4) {
             try {
-                outlineChunk(sender, Objects.requireNonNull(Bukkit.getWorld(args[0])).getChunkAt(Integer.getInteger(args[1]) << 4,
-                                                                                                 Integer.getInteger(args[3]) << 4));
-            } catch (NullPointerException e) {
-                sender.sendMessage("Could not find world.");
+                outlineChunk(sender, entity.getWorld().getChunkAt(Integer.getInteger(args[1]) << 4, Integer.getInteger(args[3]) << 4));
             } catch (NumberFormatException e) {
                 sender.sendMessage("Invalid number.");
             }
         } else if (args.length == 3) {
             try {
-                List<World> worlds = Bukkit.getWorlds();
-                Objects.requireNonNull(worlds)
-                       .stream()
-                       .filter((world) -> world.getName().equalsIgnoreCase(args[0]))
-                       .forEach((world) -> {
-                           outlineChunk(sender, world.getChunkAt(Integer.getInteger(args[1]) << 4,
-                                                                 Integer.getInteger(args[2]) << 4));
-                       });
-                
-            } catch (NullPointerException e) {
-                sender.sendMessage("Could not find world.");
-                e.printStackTrace();
+                outlineChunk(sender, entity.getWorld().getChunkAt(Integer.getInteger(args[1]) << 4, Integer.getInteger(args[2]) << 4));
             } catch (NumberFormatException e) {
                 sender.sendMessage("Invalid number.");
             }
         } else if (args.length == 0) {
-            if (sender instanceof Entity) {
-                outlineChunk(sender, ((Entity) sender).getLocation().getChunk());
-            } else if (sender instanceof CommandBlock) {
-                outlineChunk(sender, ((CommandBlock) sender).getChunk());
-            }
+            outlineChunk(sender, ((Entity) sender).getLocation().getChunk());
         } else {
             return false;
         }
