@@ -22,9 +22,8 @@ package com.solostudios.netherregeneration.commands;
 
 import com.solostudios.netherregeneration.ChunkUtil;
 import com.solostudios.netherregeneration.NetherRegeneration;
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
-import org.bukkit.World;
+import org.bukkit.Location;
 import org.bukkit.block.CommandBlock;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -34,7 +33,6 @@ import org.bukkit.entity.Entity;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class OutlineChunkCommand implements CommandExecutor, TabCompleter {
@@ -52,20 +50,32 @@ public class OutlineChunkCommand implements CommandExecutor, TabCompleter {
             return false;
         }
         Entity entity = (Entity) sender;
-        if (args.length == 4) {
+        if (args.length == 3) {
             try {
-                outlineChunk(sender, entity.getWorld().getChunkAt(Integer.getInteger(args[1]) << 4, Integer.getInteger(args[3]) << 4));
+                ChunkUtil.outlineChunk(new Location(entity.getWorld(), Integer.getInteger(args[0]) << 4, Integer.getInteger(args[1]) << 4,
+                                                    Integer.getInteger(args[2]) << 4));
+                sender.sendMessage("Outlining the chunk at x:" + (((Entity) sender).getLocation().getBlockX())
+                                   + " z:" + ((Entity) sender).getLocation().getBlockZ() +
+                                   ". Note: if you are inside the chunk, then you will not see the outline.");
             } catch (NumberFormatException e) {
                 sender.sendMessage("Invalid number.");
             }
-        } else if (args.length == 3) {
+        } else if (args.length == 2) {
             try {
-                outlineChunk(sender, entity.getWorld().getChunkAt(Integer.getInteger(args[1]) << 4, Integer.getInteger(args[2]) << 4));
+                outlineChunk(sender, entity.getWorld().getChunkAt(Integer.getInteger(args[0]) << 4, Integer.getInteger(args[1]) << 4));
+            
+                ChunkUtil.outlineChunk(entity.getWorld().getChunkAt(Integer.getInteger(args[0]) << 4, Integer.getInteger(args[1]) << 4));
+                sender.sendMessage("Outlining the chunk at x:" + (Integer.getInteger(args[0]) << 4) + " z:" +
+                                   (Integer.getInteger(args[1]) << 4) +
+                                   ". Note: if you are inside the chunk, then you will not see the outline.");
             } catch (NumberFormatException e) {
                 sender.sendMessage("Invalid number.");
             }
         } else if (args.length == 0) {
-            outlineChunk(sender, ((Entity) sender).getLocation().getChunk());
+            ChunkUtil.outlineChunk(((Entity) sender).getLocation());
+            sender.sendMessage("Outlining the chunk at x:" + (((Entity) sender).getLocation().getBlockX())
+                               + " z:" + ((Entity) sender).getLocation().getBlockZ() +
+                               ". Note: if you are inside the chunk, then you will not see the outline.");
         } else {
             return false;
         }
@@ -75,24 +85,23 @@ public class OutlineChunkCommand implements CommandExecutor, TabCompleter {
     
     private void outlineChunk(CommandSender sender, Chunk chunk) {
         ChunkUtil.outlineChunk(chunk);
-        sender.sendMessage("Forcing the regeneration of the chunk at x:" + (chunk.getX() << 4) + " z:" +
-                           (chunk.getZ() << 4) + ".");
+        sender.sendMessage("Outlining the chunk at x:" + (chunk.getX() << 4) + " z:" +
+                           (chunk.getZ() << 4) + ". Note: if you are inside the chunk, then you will not see the outline.");
     }
+    
     
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (command.getName().equalsIgnoreCase("outlinechunk")) {
             switch (args.length) {
                 case 1:
-                    return Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList());
-                case 2:
                     if (sender instanceof CommandBlock)
                         return Collections.singletonList(String.valueOf(((CommandBlock) sender).getLocation().getBlockX()));
                     if (sender instanceof Entity)
                         return Collections.singletonList(String.valueOf(((Entity) sender).getLocation().getBlockX()));
                     return null;
+                case 2:
                 case 3:
-                case 4:
                     if (sender instanceof CommandBlock)
                         return Collections.singletonList(String.valueOf(((CommandBlock) sender).getLocation().getBlockZ()));
                     if (sender instanceof Entity)

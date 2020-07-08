@@ -39,9 +39,34 @@ import java.util.Arrays;
 public class ChunkUtil {
     public static void outlineChunk(Chunk chunk) {
         World currentWorld = chunk.getWorld();
-        int   x            = (chunk.getX() << 4) + 8; //shift 4 bits to get the block x value, then add 8 to get the center of the chunk.
-        int   z            = (chunk.getZ() << 4) + 8;
+        int   x            = (chunk.getX() << 4) + 8; // shift 4 bits to get the block x value,
+        int   z            = (chunk.getZ() << 4) + 8; // then add 8 to get the center of the chunk.
+    
+    
+        Bukkit.getLogger().info("Outlining chunk at x:" + x + " z:" + z);
+    
+        genChunkOutline(chunk, currentWorld, 128);
+        Bukkit.getScheduler().runTaskLater(NetherRegeneration.getPlugin(NetherRegeneration.class), () -> removeChunkOutline(chunk),
+                                           10 * 30);
+    }
+    
+    public static void outlineChunk(Location location) {
+        World currentWorld = location.getWorld();
+        Chunk chunk        = location.getChunk();
+        int   x            = (chunk.getX() << 4) + 8; // shift 4 bits to get the block x value,
+        int   z            = (chunk.getZ() << 4) + 8; // then add 8 to get the center of the chunk.
         
+        
+        Bukkit.getLogger().info("Outlining chunk at x:" + x + " z:" + z);
+        
+        genChunkOutline(chunk, currentWorld, location.getBlockY());
+        Bukkit.getScheduler().runTaskLater(NetherRegeneration.getPlugin(NetherRegeneration.class), () -> removeChunkOutline(chunk),
+                                           10 * 30);
+    }
+    
+    public static void genChunkOutline(Chunk chunk, World currentWorld, int y) {
+        int        x                      = (chunk.getX() << 4) + 8; // shift 4 bits to get the block x value,
+        int        z                      = (chunk.getZ() << 4) + 8; // then add 8 to get the center of the chunk.
         Scoreboard chunkOutlineScoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
         Team       chunkOutlineTeam       = chunkOutlineScoreboard.getTeam("chunk" + (x >> 4) + "-" + (z >> 4));
         
@@ -49,12 +74,12 @@ public class ChunkUtil {
             chunkOutlineTeam = chunkOutlineScoreboard.registerNewTeam("chunk" + (x >> 4) + "-" + (z >> 4));
         
         chunkOutlineTeam.setColor(ChatColor.DARK_GREEN);
+        chunkOutlineTeam.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
         
-        Bukkit.getLogger().info("Outlining chunk at x:" + x + " z:" + z);
-        Bukkit.getLogger().info("world name: " + currentWorld.getName());
+        System.out.println(y / 16);
         
-        for (int i = 0; i < (160 / 16); i++) {
-            Entity    entity    = currentWorld.spawnEntity(new Location(currentWorld, x, i * 16, z), EntityType.MAGMA_CUBE);
+        for (int i = y % 16; i < y; i += 16) {
+            Entity    entity    = currentWorld.spawnEntity(new Location(currentWorld, x, i, z), EntityType.MAGMA_CUBE);
             MagmaCube magmaCube = (MagmaCube) entity;
             
             magmaCube.setSize(32);
@@ -73,9 +98,6 @@ public class ChunkUtil {
             chunkOutlineTeam.addEntry(magmaCube.getUniqueId().toString());
             magmaCube.setGlowing(true);
         }
-        
-        Bukkit.getScheduler().runTaskLater(NetherRegeneration.getPlugin(NetherRegeneration.class), () -> removeChunkOutline(chunk),
-                                           10 * 30);
     }
     
     public static void removeChunkOutline(Chunk chunk) {

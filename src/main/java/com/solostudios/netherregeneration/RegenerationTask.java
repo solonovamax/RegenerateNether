@@ -56,13 +56,14 @@ public class RegenerationTask implements Runnable {
             EditSession session = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, -1);
             boolean     result  = world.regenerate(regenerationRegion, session);
             session.flushSession();
-        
+            System.out.println("regen completed");
+    
             //log here for testing
             //Bukkit.getLogger().info("Regenerating chunk at coords x:" + bx + " z:" + bz);
-        
+    
         } catch (Exception e) {
             //Bukkit.getLogger().log(Level.WARNING, "error", e);
-        
+    
         }
     }
 }

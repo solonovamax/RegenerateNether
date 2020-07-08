@@ -22,9 +22,7 @@ package com.solostudios.netherregeneration.commands;
 
 import com.solostudios.netherregeneration.NetherRegeneration;
 import com.solostudios.netherregeneration.RegenerationTask;
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
-import org.bukkit.World;
 import org.bukkit.block.CommandBlock;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -34,7 +32,6 @@ import org.bukkit.entity.Entity;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class ForceRegenCommand implements CommandExecutor, TabCompleter {
@@ -53,15 +50,15 @@ public class ForceRegenCommand implements CommandExecutor, TabCompleter {
             return false;
         }
         Entity entity = (Entity) sender;
-        if (args.length == 4) {
+        if (args.length == 3) {
             try {
-                regenerate(sender, entity.getWorld().getChunkAt(Integer.getInteger(args[1]) << 4, Integer.getInteger(args[3]) << 4));
+                regenerate(sender, entity.getWorld().getChunkAt(Integer.getInteger(args[0]) << 4, Integer.getInteger(args[2]) << 4));
             } catch (NumberFormatException e) {
                 sender.sendMessage("Invalid number.");
             }
-        } else if (args.length == 3) {
+        } else if (args.length == 2) {
             try {
-                regenerate(sender, entity.getWorld().getChunkAt(Integer.getInteger(args[1]) << 4, Integer.getInteger(args[2]) << 4));
+                regenerate(sender, entity.getWorld().getChunkAt(Integer.getInteger(args[0]) << 4, Integer.getInteger(args[1]) << 4));
             } catch (NumberFormatException e) {
                 sender.sendMessage("Invalid number.");
             }
@@ -85,15 +82,13 @@ public class ForceRegenCommand implements CommandExecutor, TabCompleter {
         if (command.getName().equalsIgnoreCase("forcechunkregen")) {
             switch (args.length) {
                 case 1:
-                    return Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList());
-                case 2:
                     if (sender instanceof CommandBlock)
                         return Collections.singletonList(String.valueOf(((CommandBlock) sender).getLocation().getBlockX()));
                     if (sender instanceof Entity)
                         return Collections.singletonList(String.valueOf(((Entity) sender).getLocation().getBlockX()));
                     return null;
+                case 2:
                 case 3:
-                case 4:
                     if (sender instanceof CommandBlock)
                         return Collections.singletonList(String.valueOf(((CommandBlock) sender).getLocation().getBlockZ()));
                     if (sender instanceof Entity)
