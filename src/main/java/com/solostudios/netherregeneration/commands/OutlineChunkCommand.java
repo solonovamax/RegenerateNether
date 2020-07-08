@@ -52,21 +52,19 @@ public class OutlineChunkCommand implements CommandExecutor, TabCompleter {
         Entity entity = (Entity) sender;
         if (args.length == 3) {
             try {
-                ChunkUtil.outlineChunk(new Location(entity.getWorld(), Integer.getInteger(args[0]) << 4, Integer.getInteger(args[1]) << 4,
-                                                    Integer.getInteger(args[2]) << 4));
-                sender.sendMessage("Outlining the chunk at x:" + (((Entity) sender).getLocation().getBlockX())
-                                   + " z:" + ((Entity) sender).getLocation().getBlockZ() +
+                ChunkUtil.outlineChunk(new Location(entity.getWorld(), Integer.parseInt(args[0]) << 4, Integer.parseInt(args[1]),
+                                                    Integer.parseInt(args[2]) << 4));
+                sender.sendMessage("Outlining the chunk at x:" + (Integer.parseInt(args[0]) << 4) + " z:" +
+                                   (Integer.parseInt(args[2]) << 4) +
                                    ". Note: if you are inside the chunk, then you will not see the outline.");
             } catch (NumberFormatException e) {
                 sender.sendMessage("Invalid number.");
             }
         } else if (args.length == 2) {
             try {
-                outlineChunk(sender, entity.getWorld().getChunkAt(Integer.getInteger(args[0]) << 4, Integer.getInteger(args[1]) << 4));
-            
-                ChunkUtil.outlineChunk(entity.getWorld().getChunkAt(Integer.getInteger(args[0]) << 4, Integer.getInteger(args[1]) << 4));
-                sender.sendMessage("Outlining the chunk at x:" + (Integer.getInteger(args[0]) << 4) + " z:" +
-                                   (Integer.getInteger(args[1]) << 4) +
+                ChunkUtil.outlineChunk(entity.getWorld().getChunkAt(Integer.parseInt(args[0]) << 4, Integer.parseInt(args[1]) << 4));
+                sender.sendMessage("Outlining the chunk at x:" + (Integer.parseInt(args[0]) << 4) + " z:" +
+                                   (Integer.parseInt(args[1]) << 4) +
                                    ". Note: if you are inside the chunk, then you will not see the outline.");
             } catch (NumberFormatException e) {
                 sender.sendMessage("Invalid number.");

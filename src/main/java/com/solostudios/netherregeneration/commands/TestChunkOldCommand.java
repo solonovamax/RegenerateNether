@@ -51,13 +51,13 @@ public class TestChunkOldCommand implements CommandExecutor, TabCompleter {
         Entity entity = (Entity) sender;
         if (args.length == 3) {
             try {
-                isChunkOld(sender, Integer.getInteger(args[0]), Integer.getInteger(args[2]));
+                isChunkOld(sender, Integer.parseInt(args[0]), Integer.parseInt(args[2]));
             } catch (NumberFormatException e) {
                 sender.sendMessage("Invalid number.");
             }
         } else if (args.length == 2) {
             try {
-                isChunkOld(sender, Integer.getInteger(args[0]), Integer.getInteger(args[1]));
+                isChunkOld(sender, Integer.parseInt(args[0]), Integer.parseInt(args[1]));
             } catch (NumberFormatException e) {
                 sender.sendMessage("Invalid number.");
             }

@@ -52,13 +52,13 @@ public class ForceRegenCommand implements CommandExecutor, TabCompleter {
         Entity entity = (Entity) sender;
         if (args.length == 3) {
             try {
-                regenerate(sender, entity.getWorld().getChunkAt(Integer.getInteger(args[0]) << 4, Integer.getInteger(args[2]) << 4));
+                regenerate(sender, entity.getWorld().getChunkAt(Integer.parseInt(args[0]) << 4, Integer.parseInt(args[2]) << 4));
             } catch (NumberFormatException e) {
                 sender.sendMessage("Invalid number.");
             }
         } else if (args.length == 2) {
             try {
-                regenerate(sender, entity.getWorld().getChunkAt(Integer.getInteger(args[0]) << 4, Integer.getInteger(args[1]) << 4));
+                regenerate(sender, entity.getWorld().getChunkAt(Integer.parseInt(args[0]) << 4, Integer.parseInt(args[1]) << 4));
             } catch (NumberFormatException e) {
                 sender.sendMessage("Invalid number.");
             }
