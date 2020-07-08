@@ -61,7 +61,7 @@ bukkit {
         isoldchunk {
             description = 'Allows you to check if this is an old a new chunk.'
             permission = 'netherregen.chunks.checkold'
-            usage = '/<command>'
+            usage = '/<command> or /<command> <world name> <x> <z> or /<comman> <world name> <x> <y> <z>'
             permissionMessage = 'You require the netherregen.chunks.save permission to use this command!'
         }
         forcechunkregen {
@@ -69,6 +69,12 @@ bukkit {
             permission = 'netherregen.chunks.forceregen'
             usage = '/<command> or /<command> <world name> <x> <z> or /<comman> <world name> <x> <y> <z>'
             permissionMessage = 'You require the netherregen.chunks.forceregen permission to use this command!'
+        }
+        outlinechunk {
+            description = 'Outlines a chunk.'
+            permission = 'netherregen.chunks.outline'
+            usage = '/<command> or /<command> <world name> <x> <z> or /<comman> <world name> <x> <y> <z>'
+            permissionMessage = 'You require the netherregen.chunks.outline permission to use this command!'
         }
         taskqueuelength {
             description = 'Allows you to check the length of the task queue.'
@@ -91,19 +97,31 @@ bukkit {
             setDefault('OP')
         }
         'netherregen.chunks.*' {
-            children = ['netherregen.chunks.save', 'netherregen.chunks.checkold', 'netherregen.chunks.forceregen']
+            children = ['netherregen.chunks.save.*', 'netherregen.chunks.checkold', 'netherregen.chunks.forceregen', 'netherregen.chunks.outline']
             setDefault('OP')
         }
-        'netherregen.chunks.save' {
-            description = 'Allows a user to preserve a chunk.'
+        'netherregen.chunks.save.*' {
+            children = ['netherregen.chunks.save.cancelregen', 'netherregen.chunks.save.saveregion']
+            setDefault('OP')
+        }
+        'netherregen.chunks.save.cancelregen' {
+            description = 'Permits a user to cancel a regeneration.'
+            setDefault('OP')
+        }
+        'netherregen.chunks.save.saveregion' {
+            description = 'Permits a user to save a region.'
             setDefault('OP')
         }
         'netherregen.chunks.checkold' {
-            description = 'Allows a user to check if a chunk is old.'
+            description = 'Permits a user to check if a chunk is old.'
             setDefault('OP')
         }
         'netherregen.chunks.forceregen' {
-            description = 'Allows a user to force a chunk regen.'
+            description = 'Permits a user to force a chunk regen.'
+            setDefault('OP')
+        }
+        'netherregen.chunks.outline' {
+            description = 'Permits a user to outline a chunk.'
             setDefault('OP')
         }
         'netherregen.taskqueue.*' {
@@ -111,11 +129,11 @@ bukkit {
             setDefault('OP')
         }
         'netherregen.taskqueue.length' {
-            description = 'Allows you to check the task queue length.'
+            description = 'Permits a user to check the task queue length.'
             setDefault('OP')
         }
         'netherregen.taskqueue.clear' {
-            description = 'Allows you to check the task queue.'
+            description = 'Permits a user to check the task queue.'
             setDefault('OP')
         }
     }

@@ -20,9 +20,10 @@
 
 package com.solostudios.netherregeneration.commands;
 
+import com.solostudios.netherregeneration.ChunkUtil;
 import com.solostudios.netherregeneration.NetherRegeneration;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
+import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.block.CommandBlock;
 import org.bukkit.command.Command;
@@ -33,13 +34,14 @@ import org.bukkit.entity.Entity;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
-public class TestChunkOldCommand implements CommandExecutor, TabCompleter {
+public class OutlineChunkCommand implements CommandExecutor, TabCompleter {
     private final NetherRegeneration plugin;
     
-    public TestChunkOldCommand(NetherRegeneration plugin) {
+    public OutlineChunkCommand(NetherRegeneration plugin) {
         this.plugin = plugin;
     }
     
@@ -47,9 +49,8 @@ public class TestChunkOldCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 4) {
             try {
-                //Objects.requireNonNull(Bukkit.getWorld(args[0])).getChunkAt(Integer.getInteger(args[1]) << 4,
-                //                                                            Integer.getInteger(args[3]) << 4);
-                isChunkOld(sender, Integer.getInteger(args[1]), Integer.getInteger(args[3]));
+                outlineChunk(sender, Objects.requireNonNull(Bukkit.getWorld(args[0])).getChunkAt(Integer.getInteger(args[1]) << 4,
+                                                                                                 Integer.getInteger(args[3]) << 4));
             } catch (NullPointerException e) {
                 sender.sendMessage("Could not find world.");
             } catch (NumberFormatException e) {
@@ -57,40 +58,43 @@ public class TestChunkOldCommand implements CommandExecutor, TabCompleter {
             }
         } else if (args.length == 3) {
             try {
-                //Objects.requireNonNull(Bukkit.getWorld(args[0])).getChunkAt(Integer.getInteger(args[1]) << 4,
-                //                                                            Integer.getInteger(args[2]) << 4);
-                isChunkOld(sender, Integer.getInteger(args[1]), Integer.getInteger(args[2]));
+                List<World> worlds = Bukkit.getWorlds();
+                Objects.requireNonNull(worlds)
+                       .stream()
+                       .filter((world) -> world.getName().equalsIgnoreCase(args[0]))
+                       .forEach((world) -> {
+                           outlineChunk(sender, world.getChunkAt(Integer.getInteger(args[1]) << 4,
+                                                                 Integer.getInteger(args[2]) << 4));
+                       });
+                
             } catch (NullPointerException e) {
                 sender.sendMessage("Could not find world.");
+                e.printStackTrace();
             } catch (NumberFormatException e) {
                 sender.sendMessage("Invalid number.");
             }
         } else if (args.length == 0) {
             if (sender instanceof Entity) {
-                isChunkOld(sender, ((Entity) sender).getLocation());
+                outlineChunk(sender, ((Entity) sender).getLocation().getChunk());
             } else if (sender instanceof CommandBlock) {
-                isChunkOld(sender, ((CommandBlock) sender).getLocation());
+                outlineChunk(sender, ((CommandBlock) sender).getChunk());
             }
         } else {
             return false;
         }
-    
+        
         return true;
     }
     
-    private void isChunkOld(CommandSender sender, int x, int z) {
-        sender.sendMessage(plugin.isChunkOld(x << 4, z << 4) ?
-                           "The selected chunks is a new chunk." :
-                           "The selected chunk is an old chunk.");
-    }
-    
-    private void isChunkOld(CommandSender sender, Location location) {
-        isChunkOld(sender, location.getBlockX(), location.getBlockZ());
+    private void outlineChunk(CommandSender sender, Chunk chunk) {
+        ChunkUtil.outlineChunk(chunk);
+        sender.sendMessage("Forcing the regeneration of the chunk at x:" + (chunk.getX() << 4) + " z:" +
+                           (chunk.getZ() << 4) + ".");
     }
     
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (command.getName().equalsIgnoreCase("isoldchunk")) {
+        if (command.getName().equalsIgnoreCase("outlinechunk")) {
             switch (args.length) {
                 case 1:
                     return Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList());

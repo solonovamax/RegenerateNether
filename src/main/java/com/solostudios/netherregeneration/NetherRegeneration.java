@@ -21,8 +21,11 @@
 package com.solostudios.netherregeneration;
 
 import com.solostudios.netherregeneration.commands.ForceRegenCommand;
+import com.solostudios.netherregeneration.commands.OutlineChunkCommand;
 import com.solostudios.netherregeneration.commands.TestChunkOldCommand;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scoreboard.Scoreboard;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,6 +42,11 @@ import java.util.logging.Logger;
 public class NetherRegeneration extends JavaPlugin {
     private Logger     logger;
     private JSONObject chunkList;
+    private Scoreboard chunkOutlineScoreboard;
+    
+    public Scoreboard getChunkOutlineScoreboard() {
+        return chunkOutlineScoreboard;
+    }
     
     /**
      * Checks if a chunk is in the list of regenerated chunks.
@@ -97,12 +105,15 @@ public class NetherRegeneration extends JavaPlugin {
     
         TestChunkOldCommand testChunkOldCommand = new TestChunkOldCommand(this);
         ForceRegenCommand   forceRegenCommand   = new ForceRegenCommand(this);
+        OutlineChunkCommand outlineChunkCommand = new OutlineChunkCommand(this);
     
         getCommand("isoldchunk").setExecutor(testChunkOldCommand);
         getCommand("forcechunkregen").setExecutor(forceRegenCommand);
+        getCommand("outlinechunk").setExecutor(outlineChunkCommand);
     
         getCommand("isoldchunk").setTabCompleter(testChunkOldCommand);
         getCommand("forcechunkregen").setTabCompleter(forceRegenCommand);
+        getCommand("outlinechunk").setTabCompleter(outlineChunkCommand);
     
     
         File chunkListFile = new File("plugins/RegenerateNether/chunkList.json");
@@ -123,6 +134,7 @@ public class NetherRegeneration extends JavaPlugin {
             }
             chunkList = new JSONObject();
         }
-        
+    
+        chunkOutlineScoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
     }
 }
