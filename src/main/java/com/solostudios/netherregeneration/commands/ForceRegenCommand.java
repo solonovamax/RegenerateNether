@@ -22,11 +22,6 @@ package com.solostudios.netherregeneration.commands;
 
 import com.solostudios.netherregeneration.NetherRegeneration;
 import com.solostudios.netherregeneration.RegenerationTask;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
@@ -83,19 +78,6 @@ public class ForceRegenCommand implements CommandExecutor, TabCompleter {
         new RegenerationTask(plugin, chunk).run();
         sender.sendMessage("Forcing the regeneration of the chunk at x:" + (chunk.getX() << 4) + " z:" +
                            (chunk.getZ() << 4) + ".");
-        plugin.getServer().getOnlinePlayers().forEach((player -> {
-            TextComponent outlineComponent = new TextComponent("[Click to Outline]");
-            outlineComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
-                                                          "/outlinechunk " + chunk.getWorld().getName() + " " + (chunk.getX() << 4) + " " +
-                                                          (chunk.getZ() << 4)));
-            outlineComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click me to run!").create()));
-        
-            player.spigot().sendMessage(new ComponentBuilder("Would you like to outline the chunk?").color(ChatColor.WHITE)
-                                                                                                    .append(" ")
-                                                                                                    .color(ChatColor.GREEN)
-                                                                                                    .append(outlineComponent)
-                                                                                                    .create());
-        }));
     }
     
     @Override
