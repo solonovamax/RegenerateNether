@@ -18,10 +18,9 @@
  *
  */
 
-package com.solostudios.netherregeneration.commands;
+package com.solostudios.netherregeneration.commands.regenqueue;
 
 import com.solostudios.netherregeneration.NetherRegeneration;
-import org.bukkit.Chunk;
 import org.bukkit.block.CommandBlock;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -33,10 +32,10 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class ForceRegenCommand implements CommandExecutor, TabCompleter {
+public class ConfirmRegenCommand implements CommandExecutor, TabCompleter {
     private final NetherRegeneration plugin;
     
-    public ForceRegenCommand(NetherRegeneration plugin) {
+    public ConfirmRegenCommand(NetherRegeneration plugin) {
         this.plugin = plugin;
     }
     
@@ -47,38 +46,35 @@ public class ForceRegenCommand implements CommandExecutor, TabCompleter {
                     "I'm way too lazy to try and figure out why things are breaking, so for now only entities can run the command.");
             return false;
         }
-        Entity entity = (Entity) sender;
         if (args.length == 3) {
             try {
-                regenerate(entity, entity.getWorld().getChunkAt(Integer.parseInt(args[0]) << 4, Integer.parseInt(args[2]) << 4));
+                if (plugin.getChunkRegenQueue().quickComplete(
+                        ((Entity) sender).getWorld().getChunkAt(Integer.parseInt(args[0]) >> 4, Integer.parseInt(args[2]) >> 4)))
+                    sender.sendMessage("Confirmed regeneration of chunk.");
+                else
+                    sender.sendMessage("Could not regenerate chunk, as it was not in the queue already.");
             } catch (NumberFormatException e) {
                 sender.sendMessage("Invalid number.");
             }
         } else if (args.length == 2) {
             try {
-                regenerate(entity, entity.getWorld().getChunkAt(Integer.parseInt(args[0]) << 4, Integer.parseInt(args[1]) << 4));
+                if (plugin.getChunkRegenQueue().quickComplete(
+                        ((Entity) sender).getWorld().getChunkAt(Integer.parseInt(args[0]) >> 4, Integer.parseInt(args[1]) >> 4)))
+                    sender.sendMessage("Confirmed regeneration of chunk.");
+                else
+                    sender.sendMessage("Could not regenerate chunk, as it was not in the queue already.");
             } catch (NumberFormatException e) {
                 sender.sendMessage("Invalid number.");
             }
-        } else if (args.length == 0) {
-            regenerate(entity, entity.getLocation().getChunk());
         } else {
             return false;
         }
-    
         return true;
-    }
-    
-    private void regenerate(Entity sender, Chunk chunk) {
-        //new RegenerationTask(plugin, chunk).run();
-        plugin.getChunkRegenQueue().addTaskWithConfirmation(chunk, sender);
-        sender.sendMessage("Forcing the regeneration of the chunk at x:" + (chunk.getX() << 4) + " z:" +
-                           (chunk.getZ() << 4) + ".");
     }
     
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (command.getName().equalsIgnoreCase("forcechunkregen")) {
+        if (command.getName().equalsIgnoreCase("confirmregen")) {
             switch (args.length) {
                 case 1:
                     if (sender instanceof CommandBlock)
@@ -96,6 +92,5 @@ public class ForceRegenCommand implements CommandExecutor, TabCompleter {
             }
         }
         return null;
-        
     }
 }

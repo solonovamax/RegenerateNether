@@ -23,9 +23,11 @@ package com.solostudios.netherregeneration;
 import com.solostudios.netherregeneration.commands.ForceRegenCommand;
 import com.solostudios.netherregeneration.commands.OutlineChunkCommand;
 import com.solostudios.netherregeneration.commands.TestChunkOldCommand;
-import org.bukkit.Bukkit;
+import com.solostudios.netherregeneration.commands.regenqueue.CancelRegenCommand;
+import com.solostudios.netherregeneration.commands.regenqueue.ConfirmRegenCommand;
+import com.solostudios.netherregeneration.commands.regenqueue.OutlineAndDelayCommand;
+import com.solostudios.netherregeneration.regenqueue.ChunkRegenQueue;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scoreboard.Scoreboard;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,12 +42,12 @@ import java.util.logging.Logger;
 
 
 public class NetherRegeneration extends JavaPlugin {
-    private Logger     logger;
-    private JSONObject chunkList;
-    private Scoreboard chunkOutlineScoreboard;
+    private Logger          logger;
+    private JSONObject      chunkList;
+    private ChunkRegenQueue chunkRegenQueue;
     
-    public Scoreboard getChunkOutlineScoreboard() {
-        return chunkOutlineScoreboard;
+    public ChunkRegenQueue getChunkRegenQueue() {
+        return chunkRegenQueue;
     }
     
     /**
@@ -103,17 +105,26 @@ public class NetherRegeneration extends JavaPlugin {
     
         getServer().getPluginManager().registerEvents(new EventListener(this), this);
     
-        TestChunkOldCommand testChunkOldCommand = new TestChunkOldCommand(this);
-        ForceRegenCommand   forceRegenCommand   = new ForceRegenCommand(this);
-        OutlineChunkCommand outlineChunkCommand = new OutlineChunkCommand(this);
+        TestChunkOldCommand    testChunkOldCommand    = new TestChunkOldCommand(this);
+        ForceRegenCommand      forceRegenCommand      = new ForceRegenCommand(this);
+        OutlineChunkCommand    outlineChunkCommand    = new OutlineChunkCommand(this);
+        CancelRegenCommand     cancelRegenCommand     = new CancelRegenCommand(this);
+        ConfirmRegenCommand    confirmRegenCommand    = new ConfirmRegenCommand(this);
+        OutlineAndDelayCommand outlineAndDelayCommand = new OutlineAndDelayCommand(this);
     
         getCommand("isoldchunk").setExecutor(testChunkOldCommand);
         getCommand("forcechunkregen").setExecutor(forceRegenCommand);
         getCommand("outlinechunk").setExecutor(outlineChunkCommand);
+        getCommand("cancelregen").setExecutor(cancelRegenCommand);
+        getCommand("confirmregen").setExecutor(confirmRegenCommand);
+        getCommand("outlineanddelay").setExecutor(outlineAndDelayCommand);
     
         getCommand("isoldchunk").setTabCompleter(testChunkOldCommand);
         getCommand("forcechunkregen").setTabCompleter(forceRegenCommand);
         getCommand("outlinechunk").setTabCompleter(outlineChunkCommand);
+        getCommand("cancelregen").setExecutor(cancelRegenCommand);
+        getCommand("confirmregen").setExecutor(confirmRegenCommand);
+        getCommand("outlineanddelay").setExecutor(outlineAndDelayCommand);
     
     
         File chunkListFile = new File("plugins/RegenerateNether/chunkList.json");
@@ -135,6 +146,6 @@ public class NetherRegeneration extends JavaPlugin {
             chunkList = new JSONObject();
         }
     
-        chunkOutlineScoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        this.chunkRegenQueue = new ChunkRegenQueue(this);
     }
 }

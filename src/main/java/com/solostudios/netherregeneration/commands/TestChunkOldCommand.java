@@ -42,7 +42,6 @@ public class TestChunkOldCommand implements CommandExecutor, TabCompleter {
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-    
         if (!(sender instanceof Entity)) {
             sender.sendMessage(
                     "I'm way too lazy to try and figure out why things are breaking, so for now only entities can run the command.");

@@ -20,10 +20,6 @@
 
 package com.solostudios.netherregeneration;
 
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -76,8 +72,6 @@ public class ChunkUtil {
         chunkOutlineTeam.setColor(ChatColor.DARK_GREEN);
         chunkOutlineTeam.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
         
-        System.out.println(y / 16);
-        
         for (int i = y % 16; i < y; i += 16) {
             Entity    entity    = currentWorld.spawnEntity(new Location(currentWorld, x, i, z), EntityType.MAGMA_CUBE);
             MagmaCube magmaCube = (MagmaCube) entity;
@@ -119,21 +113,5 @@ public class ChunkUtil {
             hash = 31L * hash + c;
         }
         return hash;
-    }
-    
-    public static void sendOutlineQuery(Entity entity, Chunk chunk) {
-        
-        TextComponent outlineComponent = new TextComponent("[Click to Outline]");
-        outlineComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
-                                                      "/outlinechunk " + chunk.getWorld().getName() + " " + (chunk.getX() << 4) + " " +
-                                                      (chunk.getZ() << 4)));
-        outlineComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click me to run!").create()));
-        
-        entity.spigot().sendMessage(new ComponentBuilder("Would you like to outline the chunk?").color(
-                net.md_5.bungee.api.ChatColor.WHITE)
-                                                                                                .append(" ")
-                                                                                                .color(net.md_5.bungee.api.ChatColor.GREEN)
-                                                                                                .append(outlineComponent)
-                                                                                                .create());
     }
 }

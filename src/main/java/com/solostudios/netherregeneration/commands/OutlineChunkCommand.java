@@ -52,8 +52,8 @@ public class OutlineChunkCommand implements CommandExecutor, TabCompleter {
         Entity entity = (Entity) sender;
         if (args.length == 3) {
             try {
-                ChunkUtil.outlineChunk(new Location(entity.getWorld(), Integer.parseInt(args[0]) << 4, Integer.parseInt(args[1]),
-                                                    Integer.parseInt(args[2]) << 4));
+                ChunkUtil.outlineChunk(
+                        new Location(entity.getWorld(), Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2])));
                 sender.sendMessage("Outlining the chunk at x:" + (Integer.parseInt(args[0]) << 4) + " z:" +
                                    (Integer.parseInt(args[2]) << 4) +
                                    ". Note: if you are inside the chunk, then you will not see the outline.");

@@ -18,10 +18,11 @@
  *
  */
 
-package com.solostudios.netherregeneration.commands;
+package com.solostudios.netherregeneration.commands.regenqueue;
 
 import com.solostudios.netherregeneration.NetherRegeneration;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.block.CommandBlock;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -33,10 +34,10 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class ForceRegenCommand implements CommandExecutor, TabCompleter {
+public class OutlineAndDelayCommand implements CommandExecutor, TabCompleter {
     private final NetherRegeneration plugin;
     
-    public ForceRegenCommand(NetherRegeneration plugin) {
+    public OutlineAndDelayCommand(NetherRegeneration plugin) {
         this.plugin = plugin;
     }
     
@@ -48,37 +49,41 @@ public class ForceRegenCommand implements CommandExecutor, TabCompleter {
             return false;
         }
         Entity entity = (Entity) sender;
+        plugin.getLogger().info(entity.getLocation().getChunk().getX() + "-" + entity.getLocation().getChunk().getZ());
         if (args.length == 3) {
             try {
-                regenerate(entity, entity.getWorld().getChunkAt(Integer.parseInt(args[0]) << 4, Integer.parseInt(args[2]) << 4));
+                if (plugin.getChunkRegenQueue().quickComplete(
+                        ((Entity) sender).getWorld().getChunkAt(Integer.parseInt(args[0]) >> 4, Integer.parseInt(args[2]) >> 4)))
+                    sender.sendMessage("Outlined the chunk.");
+                else
+                    sender.sendMessage("Could not outline the chunk, as it was not in the queue.");
             } catch (NumberFormatException e) {
                 sender.sendMessage("Invalid number.");
             }
         } else if (args.length == 2) {
             try {
-                regenerate(entity, entity.getWorld().getChunkAt(Integer.parseInt(args[0]) << 4, Integer.parseInt(args[1]) << 4));
+                Location l = new Location(entity.getWorld(), Integer.parseInt(args[0]), 20, Integer.parseInt(args[1]));
+                System.out.println(l.getChunk().getX() + "-" + l.getChunk().getZ());
+                Chunk c = entity.getWorld().getChunkAt(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+                System.out.println(c.getX() + "-" + c.getZ());
+                if (plugin.getChunkRegenQueue().showOutlineAndDelayTask(
+                        ((Entity) sender).getWorld().getChunkAt(Integer.parseInt(args[0]) >> 4, Integer.parseInt(args[1]) >> 4)))
+                    sender.sendMessage("Outlined the chunk.");
+                else
+                    sender.sendMessage("Could not outline the chunk, as it was not in the queue.");
             } catch (NumberFormatException e) {
                 sender.sendMessage("Invalid number.");
             }
-        } else if (args.length == 0) {
-            regenerate(entity, entity.getLocation().getChunk());
         } else {
             return false;
         }
-    
+        
         return true;
-    }
-    
-    private void regenerate(Entity sender, Chunk chunk) {
-        //new RegenerationTask(plugin, chunk).run();
-        plugin.getChunkRegenQueue().addTaskWithConfirmation(chunk, sender);
-        sender.sendMessage("Forcing the regeneration of the chunk at x:" + (chunk.getX() << 4) + " z:" +
-                           (chunk.getZ() << 4) + ".");
     }
     
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (command.getName().equalsIgnoreCase("forcechunkregen")) {
+        if (command.getName().equalsIgnoreCase("outlineanddelay")) {
             switch (args.length) {
                 case 1:
                     if (sender instanceof CommandBlock)
@@ -96,6 +101,5 @@ public class ForceRegenCommand implements CommandExecutor, TabCompleter {
             }
         }
         return null;
-        
     }
 }

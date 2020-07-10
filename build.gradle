@@ -76,15 +76,35 @@ bukkit {
             usage = '/<command> or /<command> <world name> <x> <z> or /<comman> <world name> <x> <y> <z>'
             permissionMessage = 'You require the netherregen.chunks.outline permission to use this command!'
         }
+
         taskqueuelength {
-            description = 'Allows you to check the length of the task queue.'
+            description = 'Checks the length of the task queue.'
             permission = 'netherregen.taskqueue.length'
             usage = '/<command>'
             permissionMessage = 'You require the netherregen.chunks.save permission to use this command!'
         }
         taskqueueclear {
-            description = 'Allows you to clear the task queue.'
+            description = 'Clears the task queue.'
             permission = 'netherregen.taskqueue.clear'
+            usage = '/<command>'
+            permissionMessage = 'You require the netherregen.chunks.save permission to use this command!'
+        }
+
+        cancelregen {
+            description = 'Cancels a regeneration task.'
+            permission = 'netherregen.taskqueue.cancelregen'
+            usage = '/<command>'
+            permissionMessage = 'You require the netherregen.chunks.save permission to use this command!'
+        }
+        confirmregen {
+            description = 'Confirms a regeneration task.'
+            permission = 'netherregen.taskqueue.confirmregen'
+            usage = '/<command>'
+            permissionMessage = 'You require the netherregen.chunks.save permission to use this command!'
+        }
+        outlineanddelay {
+            description = 'Outlines then delays a regeneration task'
+            permission = 'netherregen.taskqueue.outlineanddelay'
             usage = '/<command>'
             permissionMessage = 'You require the netherregen.chunks.save permission to use this command!'
         }
@@ -96,19 +116,13 @@ bukkit {
             children = ['netherregen.chunks.*', 'netherregen.taskqueue.*']
             setDefault('OP')
         }
+
+
         'netherregen.chunks.*' {
-            children = ['netherregen.chunks.save.*', 'netherregen.chunks.checkold', 'netherregen.chunks.forceregen', 'netherregen.chunks.outline']
+            children = ['netherregen.chunks.regen.*', 'netherregen.chunks.saveregion', 'netherregen.chunks.checkold', 'netherregen.chunks.forceregen', 'netherregen.chunks.outline']
             setDefault('OP')
         }
-        'netherregen.chunks.save.*' {
-            children = ['netherregen.chunks.save.cancelregen', 'netherregen.chunks.save.saveregion']
-            setDefault('OP')
-        }
-        'netherregen.chunks.save.cancelregen' {
-            description = 'Permits a user to cancel a regeneration.'
-            setDefault('OP')
-        }
-        'netherregen.chunks.save.saveregion' {
+        'netherregen.chunks.saveregion' {
             description = 'Permits a user to save a region.'
             setDefault('OP')
         }
@@ -124,8 +138,11 @@ bukkit {
             description = 'Permits a user to outline a chunk.'
             setDefault('OP')
         }
+
         'netherregen.taskqueue.*' {
-            children = ['netherregen.taskqueue.length', 'netherregen.chunks.checkold']
+            children = ['netherregen.taskqueue.length', 'netherregen.chunks.checkold',
+                        'netherregen.chunks.regen.cancelregen', 'netherregen.chunks.regen.confirmregen',
+                        'netherregen.chunks.regen.outlineanddelay']
             setDefault('OP')
         }
         'netherregen.taskqueue.length' {
@@ -134,6 +151,18 @@ bukkit {
         }
         'netherregen.taskqueue.clear' {
             description = 'Permits a user to check the task queue.'
+            setDefault('OP')
+        }
+        'netherregen.chunks.taskqueue.cancelregen' {
+            description = 'Permits a user to cancel a regeneration.'
+            setDefault('OP')
+        }
+        'netherregen.chunks.taskqueue.confirmregen' {
+            description = 'Permits a user to confirm a regeneration.'
+            setDefault('OP')
+        }
+        'netherregen.chunks.taskqueue.outlineanddelay' {
+            description = 'Permits a user to outline and delay a regeneration region.'
             setDefault('OP')
         }
     }
