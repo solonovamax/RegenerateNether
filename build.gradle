@@ -1,9 +1,6 @@
 /*
  * Copyright 2020 solonovamax@12oclockpoint.com
  *
- *
- * Copyright 2020 solonovamax@12oclockpoint.com
- *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the
  * "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
  * publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
@@ -41,7 +38,7 @@ bukkit {
     main = 'com.solostudios.netherregeneration.NetherRegeneration'
 
     // API version (should be set for 1.13+)
-    apiVersion = '1.15'
+    apiVersion = '1.16'
 
     // Other possible properties from plugin.yml (optional)
     load = 'STARTUP' // or 'POSTWORLD'
